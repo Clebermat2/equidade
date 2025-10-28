@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória - PDDE Tema 1 (Imagem Preenchida)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            perspective: 1000px; /* Para o efeito 3D de virar */
+            max-width: 800px;
+            width: 100%;
+        }
+        .memory-card {
+            background-color: #fff;
+            border: 2px solid #E67E22;
+            border-radius: 8px;
+            /* A altura da carta é importante para a proporção */
+            height: 150px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Removemos o padding para a imagem ir até a borda */
+            padding: 0; 
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .memory-card.flip {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            border-radius: 6px;
+        }
+        .card-front {
+            /* Caminho para a sua imagem */
+            background-image: url('https://cdn.jsdelivr.net/gh/Clebermat2/imagens/onca_verso.png'); 
+            /* Garante que a imagem CUBRA todo o espaço do card */
+            background-size: cover; 
+            /* Centraliza a imagem */
+            background-position: center; 
+            /* Evita repetição da imagem */
+            background-repeat: no-repeat; 
+            color: transparent;
+            border: none;
+            /* O padding foi movido do .memory-card para cá, 
+               mas para a imagem cobrir tudo, vamos remover o padding. */
+            padding: 0; 
+        }
+        .card-back {
+            background-color: #FFF;
+            color: #333;
+            transform: rotateY(180deg);
+            /* Adicionamos o padding de volta aqui para o texto não colar na borda */
+            padding: 10px; 
+        }
+        .reset-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #D35400;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .reset-button:hover {
+            background-color: #E67E22;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .memory-game {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .memory-card {
+                height: 180px;
+            }
+        }
+        @media (max-width: 480px) {
+            .memory-game {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .memory-card {
+                height: 160px;
+                font-size: 0.8rem;
+            }
+            .card-back {
+                font-size: 0.8rem;
+                padding: 5px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jogo da Memória: Conhecendo o PDDE </h1>
+    <section class="memory-game" id="game-board">
+        </section>
+    <button class="reset-button" onclick="resetGame()">Reiniciar Jogo</button>
+
+    <script>
+        // O JavaScript permanece exatamente o mesmo da versão anterior.
+        const cardData = [
+            { id: 1, type: 'conceito', content: '<strong>PDDE</strong>', matchId: 1 },
+            { id: 2, type: 'definicao', content: 'Programa que leva recursos financeiros diretamente para as escolas públicas e indígenas.', matchId: 1 },
+            { id: 3, type: 'conceito', content: '<strong>FNDE</strong>', matchId: 2 },
+            { id: 4, type: 'definicao', content: 'Órgão do governo responsável por executar políticas educacionais, incluindo o PDDE.', matchId: 2 },
+            { id: 5, type: 'conceito', content: '<strong>UEx</strong>', matchId: 3 },
+            { id: 6, type: 'definicao', content: 'Unidade Executora Própria; a associação (como Caixa Escolar) que cuida do dinheiro na escola.', matchId: 3 },
+            { id: 7, type: 'conceito', content: '<strong>Descentralização</strong>', matchId: 4 },
+            { id: 8, type: 'definicao', content: 'O dinheiro chega direto na escola, sem passar por muitos caminhos, dando autonomia à comunidade.', matchId: 4 },
+            { id: 9, type: 'conceito', content: '<strong>Comunidade Escolar</strong>', matchId: 5 },
+            { id: 10, type: 'definicao', content: 'Grupo formado por professores, alunos, pais/mães e responsáveis.', matchId: 5 },
+            { id: 11, type: 'conceito', content: '<strong>Educação Indígena (LDB)</strong>', matchId: 6 },
+            { id: 12, type: 'definicao', content: 'Deve ser específica (com currículo próprio), intercultural (valorizando os dois mundos) e bilíngue (na língua do povo e português).', matchId: 6 },
+            { id: 13, type: 'conceito', content: '<strong>Planejamento</strong>', matchId: 7 },
+            { id: 14, type: 'definicao', content: 'A organização das ações (pedagógicas, administrativas e financeiras) decididas coletivamente pela escola.', matchId: 7 },
+            { id: 15, type: 'conceito', content: '<strong>Simbologia Kaingang</strong>', matchId: 8 },
+            { id: 16, type: 'definicao', content: 'Os grafismos representam os irmãos mitológicos Kamé (linhas compridas) e Kairu (formas fechadas).', matchId: 8 },
+        ];
+
+        const gameBoard = document.getElementById('game-board');
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+
+        function initializeGame() {
+            gameBoard.innerHTML = ''; // Limpa o tabuleiro
+            let shuffledCards = cardData.sort(() => 0.5 - Math.random());
+
+            shuffledCards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('memory-card');
+                cardElement.dataset.matchId = card.matchId;
+
+                cardElement.innerHTML = `
+                    <div class="card-face card-front"></div> 
+                    <div class="card-face card-back">${card.content}</div>
+                `;
+
+                cardElement.addEventListener('click', flipCard);
+                gameBoard.appendChild(cardElement);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                // Primeiro clique
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            // Segundo clique
+            secondCard = this;
+            lockBoard = true;
+
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.matchId === secondCard.dataset.matchId;
+
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            // É um par
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            
+            // Mudar a cor para indicar o acerto
+            firstCard.style.borderColor = '#2ECC71';
+            secondCard.style.borderColor = '#2ECC71';
+            firstCard.querySelector('.card-back').style.backgroundColor = '#e8f8ef';
+            secondCard.querySelector('.card-back').style.backgroundColor = '#e8f8ef';
+
+
+            resetBoard();
+        }
+
+        function unflipCards() {
+            // Não é um par
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }, 1200);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        function resetGame() {
+            initializeGame();
+        }
+
+        // Inicia o jogo pela primeira vez
+        initializeGame();
+
+    </script>
+</body>
+</html>
