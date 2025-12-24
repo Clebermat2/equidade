@@ -1,1 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão 1: O Planejamento é a Chave!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Custom font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        /* Base styles */
+        html {
+            /* Using a relative unit allows for easy font scaling */
+            font-size: 16px; 
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Imagem de fundo aplicada aqui */
+            background: url("'https://cdn.jsdelivr.net/gh/Clebermat2/imagens/imgCobra.png'") no-repeat center center fixed; 
+            background-size: contain;
+            transition: background-color 0.3s ease;
+        }
 
+        /* Styles for answer buttons to provide feedback */
+        .correct {
+            background-color: #22c55e !important; /* Green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* Green-600 */
+            transform: scale(1.02);
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* Red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* Red-600 */
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .explanation-box {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- High Contrast Mode Styles --- */
+        body.high-contrast {
+            background: #ffffff !important; /* Plain white background */
+        }
+        .high-contrast .gradient-bg {
+            background-image: none !important;
+        }
+        .high-contrast .main-text {
+            color: #000000 !important;
+        }
+        .high-contrast .sub-text {
+            color: #212121 !important;
+        }
+        .high-contrast .card-bg {
+            background-color: #ffffff !important;
+            border: 2px solid #000000;
+        }
+        .high-contrast .option-btn {
+            background-color: #f0f0f0 !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+        .high-contrast .option-btn:hover {
+             background-color: #dddddd !important;
+        }
+        .high-contrast .correct {
+            background-color: #ffffff !important;
+            outline: 4px solid #000000;
+            color: #000000 !important;
+        }
+        .high-contrast .incorrect {
+            background-color: #e0e0e0 !important;
+            color: #000000 !important;
+            text-decoration: line-through;
+        }
+        .high-contrast .explanation-box {
+            background-color: #f5f5f5 !important;
+            border-color: #000000 !important;
+        }
+        .high-contrast #progress-bar {
+            background-color: #000000 !important;
+        }
+        .high-contrast .progress-track {
+            background-color: #ffffff !important;
+            border: 1px solid #000;
+        }
+        .high-contrast .score-circle {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-lg">
+        <button id="toggle-contrast-btn" title="Alternar Alto Contraste" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2"></path><path d="M12 21v2"></path><path d="m4.22 4.22 1.42 1.42"></path><path d="m18.36 18.36 1.42 1.42"></path><path d="M1 12h2"></path><path d="M21 12h2"></path><path d="m4.22 19.78 1.42-1.42"></path><path d="m18.36 5.64 1.42-1.42"></path></svg>
+        </button>
+        <button id="decrease-font-btn" title="Diminuir Fonte" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors font-bold text-lg">A-</button>
+        <button id="increase-font-btn" title="Aumentar Fonte" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors font-bold text-lg">A+</button>
+    </div>
+
+    <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
+
+    <div id="introduction-container" class="bg-white/90 backdrop-blur-lg w-full max-w-3xl p-8 sm:p-12 rounded-2xl shadow-2xl text-center">
+        
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+            🎯 Missão 1: O Planejamento é a Chave do Sucesso!
+        </h1>
+        
+        <hr class="my-6 border-gray-300">
+
+        <div class="bg-gray-50 p-6 rounded-lg text-left shadow-inner">
+            <h3 class="text-lg font-bold text-indigo-700">🔁 Organizando a Casa</h3>
+            <p class="text-md text-gray-600 mt-2"><span class="font-semibold">Conteúdo Principal:</span> Uma introdução essencial ao PDDE e ao papel fundamental do novo gestor.</p>
+            <p class="text-md text-gray-600 mt-1"><span class="font-semibold">Desafio:</span> Teste seus conhecimentos com o "Quiz de Boas-Vindas"!</p>
+        </div>
+
+        <div class="mt-8">
+            <button id="start-quiz-btn" class="inline-block w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold text-xl py-4 px-10 rounded-lg shadow-xl hover:scale-105 transform transition-transform duration-300 ease-in-out">
+                Começar Desafio!
+            </button>
+        </div>
+    </div>
+
+    <div id="quiz-container" class="hidden bg-white/90 backdrop-blur-lg w-full max-w-4xl p-6 sm:p-10 rounded-2xl shadow-2xl transition-all duration-300 card-bg">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 main-text">🎯 Quiz de Boas-Vindas 🎯</h1>
+            <p class="text-base text-gray-500 mt-2 sub-text">Curso: Conhecimentos Básicos para Gestão do PDDE</p>
+        </div>
+
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-8 progress-track">
+            <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500"></div>
+        </div>
+
+        <div id="question-area">
+            <div class="flex justify-between items-center mb-4">
+                 <span id="question-counter" class="text-base font-semibold text-gray-600 sub-text"></span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-8 main-text" id="question-text">Carregando pergunta...</h2>
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+            <div id="explanation-container" class="mt-8"></div>
+        </div>
+    </div>
+
+    <div id="results-container" class="hidden bg-white/90 backdrop-blur-lg w-full max-w-3xl p-8 text-center rounded-2xl shadow-2xl card-bg">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4 main-text">Atividade Concluída!</h2>
+        <p class="text-xl text-gray-600 mb-8 sub-text" id="score-text">Sua pontuação final é:</p>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-6xl font-bold rounded-full w-40 h-40 flex items-center justify-center mx-auto mb-8 shadow-lg score-circle" id="final-score">
+            10/10
+        </div>
+        <p class="text-gray-500 sub-text">Parabéns por finalizar o quiz! Continue seus estudos.</p>
+    </div>
+
+    <script>
+        // --- Quiz Data ---
+        const quizData = [
+            {
+                question: "Qual é o objetivo central do curso Conhecimentos Básicos para Gestão Administrativa e Financeira dos Recursos do PDDE, considerando a realidade das escolas quilombolas, indígenas e de assentamentos?",
+                options: [
+                    "Promover a compreensão dos processos de gestão administrativa, financeira e contábil dos recursos do PDDE, conforme as normas do FNDE, fortalecendo a autonomia, a transparência e a gestão democrática nas escolas.",
+                    "Oferecer atividades recreativas para gestores escolares.",
+                    "Ensinar a criação de projetos pedagógicos.",
+                    "Disponibilizar cursos gerais de aperfeiçoamento sem relação com a gestão de recursos públicos."
+                ],
+                correct: 0,
+                explanation: "O curso foca em capacitar os gestores para a correta aplicação dos recursos do FNDE, garantindo a eficiência e a transparência."
+            },
+            {
+                question: " Assim como terra, água e tambor tem grande simbologia para as culturas tradicionais, por que o personagem  \"Dindin\" é utilizado como mascote nos cursos de formação do PDDE do Cecampe Sudeste UFU? ",
+                options: [
+                    "Por ser apenas um personagem lúdico e decorativo.",
+                    "Por representar, de forma pedagógica e culturalmente reconhecida, o cuidado com o recurso público, a economia responsável e a importância do planejamento financeiro na gestão escolar, assim como as culturas tradicionais tem muitos simbolismos.",
+                    "Por simbolizar sorte na administração dos recursos.",
+                    "Por facilitar a divulgação visual dos materiais do curso."
+                ],
+                correct: 1,
+                explanation: "O porquinho-cofre é um símbolo universal de economia e finanças, alinhado ao objetivo do curso de promover a boa gestão financeira."
+            },
+            {
+                question: "Nas atividades das associações e lideranças comunitárias são obrigatórios vários encaminhamentos legais. No contexto da legislação do PDDE, qual é o foco principal da ementa do curso Conhecimentos Básicos para Gestão Administrativa e Financeira dos Recursos do PDDE?",
+                options: [
+                    "Desenvolvimento de projetos pedagógicos sem vínculo com a gestão financeira.",
+                    "Captação de recursos privados para manutenção da escola",
+                    "Garantia da regularidade administrativa, financeira e contábil da Unidade Executora (UEx), assegurando a continuidade do recebimento dos recursos do PDDE e o atendimento às necessidades do território escolar.",
+                    "Organização de eventos comemorativos escolares."
+                ],
+                correct: 2,
+                explanation: "A regularidade da Unidade Executora (UEx) é crucial para que a escola continue recebendo os recursos do PDDE sem interrupções."
+            },
+            {
+                question: "Considerando as normas do FNDE e as especificidades das escolas quilombolas, indígenas e de assentamentos, um dos objetivos específicos do curso é:",
+                options: [
+                    "Capacitar gestores para atividades não relacionadas à gestão escolar.",
+                    "Orientar quanto à definição participativa das prioridades de aquisição de itens de custeio e capital, em diálogo com as especificidades da comunidade escolar e o do território.",
+                    "Realizar auditorias externas nas escolas",
+                    "Desenvolver sistemas digitais para gestão escolar."
+                ],
+                correct: 1,
+                explanation: "O curso ajuda o gestor a tomar decisões estratégicas sobre como investir os recursos, diferenciando despesas de custeio e investimentos de capital."
+            },
+            {
+                question: "O Programa Dinheiro Direto na Escola (PDDE) foi instituído com qual finalidade principal, segundo a legislação vigente?",
+                options: [
+                    "Centralizar a aplicação dos recursos financeiros nas instâncias superiores.",
+                    "Retirar a autonomia das escolas na gestão dos recursos.",
+                    "Criar fundos emergenciais sem participação da comunidade escolar.",
+                    "Assegurar o repasse direto de recursos financeiros às escolas públicas, para melhoria da infraestrutura, aquisição de materiais e fortalecimento do projeto pedagógico, respeitando a gestão democrática e o controle social."
+                ],
+                correct: 3,
+                explanation: "O PDDE descentraliza os recursos, dando autonomia para as escolas investirem em suas necessidades prioritárias e melhorarem a qualidade do ensino."
+            },
+            {
+                question: "De acordo com Chiavenato (2014), quais competências são fundamentais para uma administração eficiente, aplicáveis à gestão dos recursos públicos do PDDE?",
+                options: [
+                    "Planejamento, organização, direção e controle.",
+                    "Marketing, vendas e publicidade.",
+                    "Improvisação, carisma e negociação informal.",
+                    "Criatividade artística e comunicação midiática."
+                ],
+                correct: 0,
+                explanation: "Esses quatro pilares (PODC) formam o ciclo administrativo clássico, fundamental para qualquer gestor, inclusive na área pública."
+            },
+            {
+                question: "Qual é a principal contribuição da Matriz de Eisenhower para a gestão do tempo no contexto da administração dos recursos do PDDE?",
+                options: [
+                    "Automatizar relatórios financeiros.",
+                    "Organizar a agenda de reuniões.",
+                    "Auxiliar na definição de prioridades, classificando as tarefas conforme sua urgência e importância, contribuindo para uma gestão responsável e preventiva dos recursos públicos.",
+                    "Calcular o tempo de execução de cada tarefa"
+                ],
+                correct: 2,
+                explanation: "A matriz ajuda a priorizar tarefas, separando o que é urgente (precisa de atenção imediata) do que é importante (contribui para metas de longo prazo)."
+            },
+            {
+                question: "Uma tarefa considerada importante, mas não urgente, no âmbito da gestão do PDDE, é:",
+                options: [
+                    "Planejar, de forma participativa, as aquisições e investimentos ao longo do exercício financeiro, considerando as necessidades do território e da comunidade.",
+                    "Resolver uma situação emergencial que interrompe o funcionamento da escola.",
+                    "Atender a demandas inesperadas sem impacto legal.",
+                    "Resolver problemas estruturais imediatos."
+                ],
+                correct: 0,
+                explanation: "O planejamento é uma atividade que deve ser feita com antecedência. Se não for realizado, ele acabará se tornando uma urgência no futuro (correria para gastar o recurso antes do prazo), mas, dentro de um cronograma saudável ele é o exemplo clássico de prevenção e preparação."
+            },
+            {
+                question: "No contexto da gestão do PDDE em escolas quilombolas, indígenas e de assentamentos, qual situação representa uma tarefa urgente e importante?",
+                options: [
+                    "O término iminente do mandato da diretoria da UEx, exigindo a regularização imediata da documentação em cartório para garantir a continuidade do recebimento dos recursos do PDDE.",
+                    "O planejamento anual das aquisições.",
+                    "A necessidade futura de substituição de materiais esportivos.",
+                    "A participação em atividades formativas não vinculadas a prazos legais"
+                ],
+                correct: 1,
+                explanation: "Planejar é fundamental para o sucesso a longo prazo (importante), mas não exige ação imediata (não urgente). Deve ser agendado."
+            },
+            {
+                question: "Ao aplicar a Matriz de Eisenhower na gestão dos recursos do PDDE, qual característica diferencia tarefas urgentes das tarefas importantes?",
+                options: [
+                    "O valor financeiro envolvido.",
+                    "O tempo total necessário para execução.",
+                    "O impacto das ações no curto e no longo prazo, associado à existência ou não de prazos legais e administrativos imediatos.",
+                    "O setor responsável pela atividade."
+                ],
+                correct: 2,
+                explanation: "Urgência está ligada ao tempo (prazo), enquanto importância está ligada aos resultados e metas (impacto)."
+            }
+        ];
+
+        // --- DOM Element References ---
+        const introductionContainer = document.getElementById('introduction-container');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const questionTextEl = document.getElementById('question-text');
+        const questionCounterEl = document.getElementById('question-counter');
+        const optionsContainerEl = document.getElementById('options-container');
+        const explanationContainerEl = document.getElementById('explanation-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const scoreTextEl = document.getElementById('score-text');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        // --- Quiz State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // --- Functions ---
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            // Update Progress Bar
+            const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBarEl.style.width = `${progressPercentage}%`;
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionTextEl.innerText = currentQuestion.question;
+            questionCounterEl.innerText = `Questão ${currentQuestionIndex + 1} de ${quizData.length}`;
+            optionsContainerEl.innerHTML = '';
+            explanationContainerEl.innerHTML = '';
+
+            const alternatives = ['A', 'B', 'C', 'D'];
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span class="font-bold mr-3">${alternatives[index]})</span> ${option}`;
+                button.classList.add('w-full', 'text-left', 'p-4', 'text-lg', 'rounded-lg', 'border-2', 'border-gray-200', 'bg-white', 'hover:bg-gray-100', 'hover:border-blue-300', 'transition-all', 'duration-200', 'shadow-sm', 'option-btn', 'main-text');
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                optionsContainerEl.appendChild(button);
+            });
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+            const correctAswerIndex = quizData[currentQuestionIndex].correct;
+
+            if (selectedAnswerIndex === correctAswerIndex) {
+                score++;
+                selectedButton.classList.add('correct');
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctButton = optionsContainerEl.querySelector(`[data-index='${correctAswerIndex}']`);
+                correctButton.classList.add('correct');
+            }
+
+            // Show explanation
+            const explanation = quizData[currentQuestionIndex].explanation;
+            explanationContainerEl.innerHTML = `
+                <div class="explanation-box p-4 mt-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <h4 class="font-bold text-blue-800 main-text">Explicação:</h4>
+                    <p class="text-gray-700 sub-text">${explanation}</p>
+                </div>
+            `;
+            
+            optionsContainerEl.querySelectorAll('button').forEach(btn => {
+                btn.classList.add('disabled');
+            });
+
+            // Update progress bar for the completed question
+            const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBarEl.style.width = `${progressPercentage}%`;
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 3000); // 3-second delay to read the explanation
+        }
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            finalScoreEl.innerText = `${score}/${quizData.length}`;
+            scoreTextEl.innerText = `Você acertou ${score} de ${quizData.length} questões.`;
+
+            if (score === quizData.length) {
+                 launchConfetti();
+            }
+        }
+
+        function launchConfetti() {
+            const myCanvas = document.getElementById('confetti-canvas');
+            const myConfetti = confetti.create(myCanvas, { resize: true, useWorker: true });
+            const duration = 5 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                myConfetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+                myConfetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- Accessibility Features ---
+        const bodyEl = document.body;
+        const rootEl = document.documentElement;
+        const toggleContrastBtn = document.getElementById('toggle-contrast-btn');
+        const increaseFontBtn = document.getElementById('increase-font-btn');
+        const decreaseFontBtn = document.getElementById('decrease-font-btn');
+
+        // 1. High Contrast Toggle
+        toggleContrastBtn.addEventListener('click', () => {
+            bodyEl.classList.toggle('high-contrast');
+        });
+
+        // 2. Font Size Adjustment
+        let currentFontSize = parseFloat(getComputedStyle(rootEl).fontSize);
+        
+        increaseFontBtn.addEventListener('click', () => {
+            // Set a reasonable maximum size
+            if (currentFontSize >= 22) return; 
+            currentFontSize += 2;
+            rootEl.style.fontSize = `${currentFontSize}px`;
+        });
+        
+        decreaseFontBtn.addEventListener('click', () => {
+            // Set a reasonable minimum size
+            if (currentFontSize <= 12) return; 
+            currentFontSize -= 2;
+            rootEl.style.fontSize = `${currentFontSize}px`;
+        });
+        
+        // --- Game Start Logic ---
+        startQuizBtn.addEventListener('click', () => {
+            introductionContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+        });
+
+        // --- Initial Load ---
+        loadQuestion(); // Pre-load the first question so it's ready
+    </script>
+</body>
+</html>
