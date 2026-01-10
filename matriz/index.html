@@ -1,1 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Matriz de Prioridades — Cultura e Território</title>
+
+<style>
+:root{
+    --azul1:#0b3b4f;
+    --azul2:#13727c;
+    --verde1:#1fa2a6;
+    --fundo:#e6f4f1;
+    --cartao:#4468EF;
+}
+
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:16px;
+    background-image:url("Fundo aguia.png");
+    background-size:80%;          /* cobre toda a tela */
+    background-repeat:no-repeat;    /* não repete */
+    background-attachment:fixed;    /* efeito fixo */
+    background-position:center;     /* centraliza */
+}
+
+header{
+    background:linear-gradient(135deg,var(--azul1),var(--azul2));
+    color:white;
+    padding:24px 18px 30px;
+    border-bottom-left-radius:32px;
+    border-bottom-right-radius:32px;
+    text-align:center;
+}
+header h1{margin:0;font-size:22px}
+
+/* LAYOUT EM DUAS COLUNAS: ATIVIDADES (ESQ) | MATRIZ (DIR) */
+.container{
+    max-width:1300px;
+    margin:20px auto;
+    padding:0 14px;
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:20px;
+}
+
+/* painel da esquerda (todas as atividades) */
+.activities-box{
+    background:white;
+    border-radius:20px;
+    padding:14px;
+    box-shadow:0 18px 36px rgba(0,0,0,.18);
+}
+.activities-box h3{
+    margin:0 0 8px;
+    font-size:17px;
+    font-weight:700;
+}
+.card{
+    background:#4468EF;
+    color:white;
+    border-radius:14px;
+    padding:6px 10px;
+    margin:8px 0;
+    cursor:grab;
+    font-size:15px;
+    box-shadow:
+        0 10px 18px rgba(0,0,0,.35),
+        0 3px 6px rgba(0,0,0,.25);
+}
+.card small{opacity:.9;display:block;margin-top:6px;font-size:14px}
+.card:active{transform:scale(.98)}
+
+/* painel da direita (matriz) */
+.board{
+    background:white;
+    border-radius:22px;
+    box-shadow:0 20px 40px rgba(0,0,0,.18);
+    padding:18px;
+}
+
+/* matriz 2x2 */
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+.zone{
+    background:white;
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 12px 24px rgba(0,0,0,.16);
+}
+.zone h2{
+    margin:0 0 8px;
+    background:#4468EF;
+    color:white;
+    padding:10px 12px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+}
+.drop{
+    border:2px dashed #7fb9b7;
+    border-radius:14px;
+    padding:10px;
+    min-height:120px;
+}
+
+/* feedback cores */
+.correct{background:#22c55e !important;color:white !important}
+.incorrect{background:#ef4444 !important;color:white !important}
+
+.actions{display:flex;gap:10px;margin-top:14px}
+button{
+    border:none;
+    border-radius:12px;
+    padding:12px 18px;
+    font-weight:700;
+    cursor:pointer;
+}
+.btn-check{
+    background:#3D40D0;
+    color:white;
+    box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+.btn-reset{
+    background:#3D40D0;
+    color:white;
+    box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+
+.feedback{margin-top:10px;font-weight:700}
+
+@media(max-width:900px){
+    .container{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Matriz de Prioridades — Projeto Cultura e Território Escolar</h1>
+</header>
+
+<div class="container">
+
+<!-- 🔵 COLUNA ESQUERDA — TODAS AS ATIVIDADES -->
+<div class="activities-box" id="cardsBox">
+    <h3>Arraste as atividades para os quadrantes ➜</h3>
+
+    <div class="card" draggable="true" data-answer="1">
+        Atividade 1 — Reunião com lideranças tradicionais e comunitárias.
+        <small>Validação cultural e definição de prioridades.</small>
+    </div>
+    <div class="card" draggable="true" data-answer="1">
+        Atividade 2 — Plano de aplicação dos recursos do PDDE.
+        <small>Registro em ata e aprovação da UEx.</small>
+    </div>
+
+    <div class="card" draggable="true" data-answer="2">
+        Atividade 3 — Mapeamento cultural do território.
+        <small>Saberes, práticas e memórias coletivas.</small>
+    </div>
+    <div class="card" draggable="true" data-answer="2">
+        Atividade 4 — Planejamento pedagógico interdisciplinar.
+        <small>Integração curricular e pertencimento.</small>
+    </div>
+
+    <div class="card" draggable="true" data-answer="3">
+        Atividade 5 — Solicitação imediata de orçamentos.
+        <small>Prazos administrativos rápidos.</small>
+    </div>
+    <div class="card" draggable="true" data-answer="3">
+        Atividade 6 — Organização logística do evento.
+        <small>Transporte, alimentação e estrutura.</small>
+    </div>
+
+    <div class="card" draggable="true" data-answer="4">
+        Atividade 7 — Materiais decorativos não tradicionais.
+        <small>Baixa relação com a cultura local.</small>
+    </div>
+    <div class="card" draggable="true" data-answer="4">
+        Atividade 8 — Divulgação excessiva em redes externas.
+        <small>Baixo impacto pedagógico e comunitário.</small>
+    </div>
+</div>
+
+<!-- 🟩 COLUNA DIREITA — MATRIZ 2x2 -->
+<div class="board">
+
+<div class="grid">
+    <div class="zone" data-zone="1">
+        <h2>1️⃣ Urgente e Importante</h2>
+        <div class="drop"></div>
+    </div>
+
+    <div class="zone" data-zone="2">
+        <h2>2️⃣ Importante, não urgente</h2>
+        <div class="drop"></div>
+    </div>
+
+    <div class="zone" data-zone="3">
+        <h2>3️⃣ Urgente, não importante</h2>
+        <div class="drop"></div>
+    </div>
+
+    <div class="zone" data-zone="4">
+        <h2>4️⃣ Não urgente, não importante</h2>
+        <div class="drop"></div>
+    </div>
+</div>
+
+<div class="actions">
+    <button class="btn-check" onclick="checkGame()">Verificar</button>
+    <button class="btn-reset" onclick="resetGame()">Reiniciar</button>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+</div>
+</div>
+
+<script>
+let dragItem = null;
+
+/* drag + touch */
+function enableDrag(card){
+  card.addEventListener("dragstart",()=> dragItem = card);
+  card.addEventListener("dragend",()=> dragItem = null);
+  card.addEventListener("touchstart",()=> dragItem = card);
+  card.addEventListener("touchend",()=> dragItem = null);
+}
+document.querySelectorAll(".card").forEach(enableDrag);
+
+function enableDrop(area){
+  area.addEventListener("dragover",e=> e.preventDefault());
+  area.addEventListener("drop",()=> dragItem && area.appendChild(dragItem));
+  area.addEventListener("touchmove",e=> e.preventDefault());
+  area.addEventListener("touchend",()=> dragItem && area.appendChild(dragItem));
+}
+document.querySelectorAll(".drop, #cardsBox").forEach(enableDrop);
+
+const cardsBox = document.getElementById("cardsBox");
+
+/* feedback */
+function checkGame(){
+  const drops = document.querySelectorAll(".drop");
+  const cards = document.querySelectorAll(".card");
+  let correct = 0, total = cards.length;
+
+  cards.forEach(c=> c.classList.remove("correct","incorrect"));
+
+  drops.forEach(zone=>{
+    const zoneId = zone.parentElement.getAttribute("data-zone");
+    zone.querySelectorAll(".card").forEach(card=>{
+      if(card.dataset.answer === zoneId){
+        card.classList.add("correct");
+        correct++;
+      } else {
+        card.classList.add("incorrect");
+      }
+    });
+  });
+
+  document.getElementById("feedback").innerHTML =
+    correct===total
+    ? "✔ Tudo correto! Excelente!"
+    : `${correct}/${total} corretas — ajuste e tente novamente`;
+}
+
+function resetGame(){
+  document.getElementById("feedback").innerHTML = "";
+  document.querySelectorAll(".card").forEach(c=>{
+    c.classList.remove("correct","incorrect");
+    cardsBox.appendChild(c);
+  });
+}
+</script>
+</body>
+</html>
 
