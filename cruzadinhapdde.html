@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruzadinha PDDE - Layout Ajustado</title>
+    <style>
+        :root {
+            /* Paleta de cores moderna (Baseada na sua referência) */
+            --primary-blue: #4361ee;
+            --dark-blue: #304ffe;
+            --btn-bg: #3f37c9;
+            --bg-page: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #2b2d42;
+
+            /* Ajustes de Tamanho */
+            --cell-size: 35px;
+            /* Célula reduzida para mostrar rodapé */
+            --font-size-cell: 18px;
+            --font-size-clue: 14px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            background-image: url('background.png');
+            background-size: 75%;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            /* Fixed height to prevent scroll */
+            overflow: hidden;
+            /* Prevent scroll */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            /* Further reduced to save space */
+            margin: 8px 0;
+            /* Reduced margin */
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            flex-shrink: 0;
+            /* Prevent shrinking */
+        }
+
+        /* Container Principal */
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            /* Center vertically */
+            gap: 15px;
+            /* Further reduced gap */
+            max-width: 1400px;
+            width: fit-content;
+            /* Allow it to be as wide as needed */
+            flex: 1;
+            /* Take remaining space */
+            overflow: visible;
+            /* Don't clip internal content, let scale handle it */
+        }
+
+        /* Área das Dicas */
+        .clues-container {
+            flex: 0 0 350px;
+            /* Reduced width */
+            max-width: 350px;
+            background: var(--card-bg);
+            padding: 12px;
+            /* Further reduced padding */
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15);
+            border-left: 6px solid var(--primary-blue);
+            overflow-y: auto;
+            /* Allow scroll inside clues if needed */
+            max-height: 70vh;
+        }
+
+        .clue-group h3 {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 6px;
+            /* Further reduced */
+            border-radius: 6px;
+            margin-top: 0;
+            font-size: 0.9rem;
+            /* Further reduced */
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .clue-group ol {
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+
+        .clue-group li {
+            font-size: 13px;
+            /* Further reduced */
+            line-height: 1.3;
+            margin-bottom: 6px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        /* Botão */
+        .btn-check {
+            width: 100%;
+            padding: 10px;
+            /* Reduced */
+            background-color: var(--btn-bg);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 10px rgba(63, 55, 201, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn-check:hover {
+            background-color: var(--dark-blue);
+            transform: translateY(-2px);
+        }
+
+        /* Tabuleiro */
+        .crossword-board {
+            background-color: white;
+            padding: 8px;
+            /* Further reduced */
+            display: grid;
+            /* Grid 25x22 */
+            grid-template-columns: repeat(25, var(--cell-size));
+            grid-template-rows: repeat(22, var(--cell-size));
+            gap: 2px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e0e0e0;
+        }
+
+        .cell {
+            background-color: transparent;
+            position: relative;
+            width: var(--cell-size);
+            height: var(--cell-size);
+            border-radius: 5px;
+        }
+
+        .cell.active {
+            background-color: #f0f7ff;
+            border: 2px solid #a1b4b4;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-weight: 800;
+            font-size: var(--font-size-cell);
+            text-transform: uppercase;
+            outline: none;
+            background: transparent;
+            color: var(--primary-blue);
+            padding: 0;
+            margin: 0;
+            border-radius: 5px;
+        }
+
+        .cell input:focus {
+            background-color: #e0e7ff;
+            border: 2px solid var(--primary-blue);
+        }
+
+        /* Cores de Validação */
+        .cell input.correct {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-color: #34d399;
+        }
+
+        .cell input.wrong {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-color: #f87171;
+        }
+
+        .number {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Responsividade */
+        /* Responsividade e Ajuste de Tela Única */
+        @media (max-height: 1000px) {
+            .main-container {
+                transform: scale(0.85);
+                transform-origin: top center;
+                width: auto;
+                margin: 0;
+            }
+
+            .crossword-board {
+                margin: 0;
+            }
+        }
+
+        @media (max-height: 850px) {
+            .main-container {
+                transform: scale(0.70);
+                transform-origin: top center;
+                width: auto;
+                margin: 0;
+            }
+
+            h1 {
+                font-size: 1.2rem;
+                margin: 5px 0;
+            }
+
+            .crossword-board {
+                margin: 0;
+                padding: 5px;
+            }
+
+            .clues-container {
+                padding: 10px;
+            }
+        }
+
+        @media (max-height: 768px) {
+            .main-container {
+                transform: scale(0.5);
+                transform-origin: top center;
+                width: auto;
+                margin: -40px 0 0 0;
+                /* Pull up significantly */
+            }
+
+            h1 {
+                font-size: 0.9rem;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .main-container {
+                flex-direction: row;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column-reverse;
+                transform: scale(0.65);
+            }
+
+            .crossword-board {
+                transform: none;
+                margin: 0;
+            }
+
+            .clues-container {
+                max-width: 95%;
+                flex: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>CRUZADINHA PDDE </h1>
+
+    <div class="main-container">
+
+        <div class="clues-container">
+            <div class="clue-group">
+                <h3>Horizontais</h3>
+                <ol>
+                    <li value="1">Confirmação do desejo de participação no PDDE junto ao FNDE.</li>
+                    <li value="3">Espaço coletivo que discute prioridades e acompanha recursos.</li>
+                    <li value="5">Organização dos estudantes que promove protagonismo.</li>
+                </ol>
+            </div>
+
+            <div class="clue-group">
+                <h3>Verticais</h3>
+                <ol>
+                    <li value="2">Utilização dos recursos (compras e contratações).</li>
+                    <li value="4">Processo de registro e comprovação do uso dos recursos.</li>
+                    <li value="6">Capacidade de mobilizar pessoas para objetivos comuns.</li>
+                </ol>
+            </div>
+
+            <button class="btn-check" onclick="checkAnswers()">Verificar Respostas</button>
+        </div>
+
+        <div id="board" class="crossword-board"></div>
+
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO ATUALIZADA
+        const words = [
+            // Palavra 1: ADESÃO (Horizontal)
+            { number: 1, word: "ADESAO", direction: "H", row: 2, col: 8 },
+
+            // Palavra 2: EXECUÇÃO (Vertical - Cruza com ADESÃO)
+            { number: 2, word: "EXECUCAO", direction: "V", row: 2, col: 10 },
+
+            // Palavra 3: CONSELHO ESCOLAR (Horizontal - Cruza com EXECUÇÃO)
+            { number: 3, word: "CONSELHOESCOLAR", direction: "H", row: 5, col: 10 },
+
+            // Palavra 4: PRESTAÇÃO DE CONTAS (Vertical - Cruza com CONSELHO)
+            { number: 4, word: "PRESTACAODECONTAS", direction: "V", row: 3, col: 14 },
+
+            // Palavra 5: GRÊMIO ESTUDANTIL (Horizontal - Cruza com PRESTAÇÃO)
+            { number: 5, word: "GREMIOESTUDANTIL", direction: "H", row: 11, col: 9 },
+
+            // Palavra 6: LIDERANÇA (Vertical - AGORA CRUZANDO NO 'I' DE ESTUDANTIL)
+            // 'I' de ESTUDANTIL está na coluna 23 (9 + 14 letras)
+            // 'I' de LIDERANÇA é a 2ª letra
+            { number: 6, word: "LIDERANCA", direction: "V", row: 10, col: 23 }
+        ];
+
+        const board = document.getElementById('board');
+        const gridSize = { rows: 22, cols: 25 };
+        let cells = {};
+
+        // 1. Criar Grid
+        for (let r = 1; r <= gridSize.rows; r++) {
+            for (let c = 1; c <= gridSize.cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `cell-${r}-${c}`;
+
+                // Dados para navegação
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+
+                board.appendChild(cell);
+                cells[`${r}-${c}`] = cell;
+            }
+        }
+
+        // 2. Preencher Palavras
+        words.forEach(item => {
+            let r = item.row;
+            let c = item.col;
+            const letters = item.word.split('');
+
+            // Inserir número da dica
+            const startCell = cells[`${r}-${c}`];
+            if (!startCell.querySelector('.number')) {
+                const numSpan = document.createElement('span');
+                numSpan.className = 'number';
+                numSpan.innerText = item.number;
+                startCell.appendChild(numSpan);
+            }
+
+            letters.forEach((char) => {
+                const currentCell = cells[`${r}-${c}`];
+                currentCell.classList.add('active');
+
+                let input = currentCell.querySelector('input');
+                if (!input) {
+                    input = document.createElement('input');
+                    input.maxLength = 1;
+                    input.dataset.letter = char;
+                    input.dataset.row = r;
+                    input.dataset.col = c;
+
+                    // Pulo Automático
+                    input.addEventListener('input', function (e) {
+                        if (this.value.length === 1) {
+                            moveToNextCell(parseInt(this.dataset.row), parseInt(this.dataset.col));
+                        }
+                    });
+
+                    // Backspace (opcional, para facilitar correção)
+                    input.addEventListener('keydown', function (e) {
+                        if (e.key === "Backspace" && this.value === "") {
+                            // Lógica simples para tentar voltar (não perfeita em cruzamentos, mas ajuda)
+                            // moveToPrevCell(parseInt(this.dataset.row), parseInt(this.dataset.col));
+                        }
+                    });
+
+                    currentCell.appendChild(input);
+                }
+
+                if (item.direction === "H") c++;
+                else r++;
+            });
+        });
+
+        // Função para mover o foco
+        function moveToNextCell(r, c) {
+            // Tenta direita
+            let right = cells[`${r}-${c + 1}`];
+            if (right && right.querySelector('input')) {
+                right.querySelector('input').focus();
+                return;
+            }
+            // Tenta baixo
+            let down = cells[`${r + 1}-${c}`];
+            if (down && down.querySelector('input')) {
+                down.querySelector('input').focus();
+            }
+        }
+
+        // 3. Verificar Respostas
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.cell.active input');
+            let allCorrect = true;
+            let filledCount = 0;
+
+            inputs.forEach(input => {
+                const val = input.value.trim().toUpperCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const correct = input.dataset.letter;
+
+                if (val.length > 0) filledCount++;
+
+                if (val === correct) {
+                    input.classList.add('correct');
+                    input.classList.remove('wrong');
+                } else {
+                    if (val !== "") {
+                        input.classList.add('wrong');
+                        input.classList.remove('correct');
+                    }
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect && filledCount === inputs.length) {
+                setTimeout(() => alert("🎉 Parabéns! Você completou a cruzadinha com sucesso!"), 100);
+            } else if (filledCount === 0) {
+                alert("A cruzadinha está vazia.");
+            }
+        }
+    </script>
+</body>
+
+</html>
