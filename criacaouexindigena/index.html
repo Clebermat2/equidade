@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão: Criando a UEx na Escola Indígena</title>
+    <style>
+        /* CSS Base - Totalmente Offline */
+        :root {
+            --primary: #059669; /* emerald-600 */
+            --primary-dark: #0f766e; /* teal-700 */
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 16px; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            
+            /* CONFIGURAÇÃO DE FUNDO OFFLINE: 
+               1. O gradiente serve como "reserva" caso a imagem não exista.
+               2. Altere 'fundo.png' para o nome do seu arquivo de imagem local. */
+            background-color: #ecfdf5; 
+            background-image: url("https://cdn.jsdelivr.net/gh/Clebermat2/imagens/cobra.png"); 
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: contain;
+            
+            transition: background 0.3s ease;
+        }
+
+        /* Containers de Conteúdo */
+        .container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            width: 100%;
+            max-width: 800px;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            position: relative;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Tipografia */
+        h1 { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem; }
+        h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.5rem; text-align: left; }
+        p { color: var(--text-sub); line-height: 1.5; }
+
+        /* Botões */
+        .btn-start {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
+            margin-top: 2rem;
+        }
+        .btn-start:hover { transform: scale(1.05); }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .option-btn:hover:not(.disabled) { background: #f9fafb; border-color: #6ee7b7; }
+        
+        /* Estados de Feedback */
+        .correct { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; }
+        .incorrect { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        .disabled { pointer-events: none; opacity: 0.7; }
+
+        /* Barra de Progresso */
+        .progress-track { width: 100%; height: 12px; background: #e5e7eb; border-radius: 999px; margin: 1.5rem 0; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--primary); transition: width 0.5s ease; }
+
+        /* Controles de Acessibilidade */
+        .controls { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; z-index: 100; }
+        .ctrl-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: #374151; color: white; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
+        .ctrl-btn:hover { background: #111827; }
+
+        /* Caixa de Explicação */
+        .explanation-box {
+            text-align: left;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background: #ecfdf5;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 0.5rem 0.5rem 0;
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+        /* Círculo de Pontuação Final */
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #10b981, #0d9488);
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Modo de Alto Contraste */
+        body.high-contrast { background: #fff !important; }
+        body.high-contrast .container { background: #fff !important; border: 3px solid #000; color: #000; box-shadow: none; }
+        body.high-contrast .option-btn { border: 2px solid #000; color: #000; font-weight: bold; }
+        body.high-contrast .correct { background: #fff !important; color: #000 !important; outline: 5px solid #000; }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.5rem; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="toggle-contrast-btn" class="ctrl-btn" title="Contraste">◐</button>
+        <button id="decrease-font-btn" class="ctrl-btn" title="Diminuir Fonte">A-</button>
+        <button id="increase-font-btn" class="ctrl-btn" title="Aumentar Fonte">A+</button>
+    </div>
+
+    <canvas id="confetti-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1000;"></canvas>
+
+    <!-- Tela Inicial -->
+    <div id="introduction-container" class="container">
+        <h1>🎯 Missão: Criação e Gestão da UEx Indígena</h1>
+        <div style="text-align: left; background: #f9fafb; padding: 1.5rem; border-radius: 1rem; margin-top: 1.5rem;">
+            <h3 style="color: var(--primary-dark); margin-bottom: 0.5rem;">🌿 Gestão Coletiva e Autonomia</h3>
+            <p>Aprenda os passos fundamentais para constituir a Unidade Executora respeitando a cultura das comunidades indígenas.</p>
+        </div>
+        <button id="start-quiz-btn" class="btn-start">Começar Desafio!</button>
+    </div>
+
+    <!-- Tela do Quiz -->
+    <div id="quiz-container" class="container hidden">
+        <h1 style="font-size: 1.5rem;">📖 Quiz: Constituição da UEx</h1>
+        <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+        
+        <div id="question-area">
+            <p id="question-counter" style="font-weight: bold; margin-bottom: 0.5rem; color: var(--primary-dark);"></p>
+            <h2 id="question-text"></h2>
+            <div id="options-container"></div>
+            <div id="explanation-container"></div>
+        </div>
+    </div>
+
+    <!-- Tela de Resultados -->
+    <div id="results-container" class="container hidden">
+        <h1>Missão Cumprida!</h1>
+        <p id="score-text" style="font-size: 1.2rem;"></p>
+        <div class="score-circle" id="final-score">0/0</div>
+        <p>Você fortaleceu seu conhecimento sobre a transparência e gestão do PDDE em territórios indígenas!</p>
+        <button onclick="location.reload()" class="btn-start" style="padding: 0.75rem 1.5rem; font-size: 1rem;">Reiniciar Desafio</button>
+    </div>
+
+    <script>
+        /**
+         * Lógica de Confetes Simplificada para Uso Offline
+         */
+        (function(global) {
+            var confetti = (function() {
+                var can = document.getElementById('confetti-canvas');
+                var ctx = can.getContext('2d');
+                function fire(opts) {
+                    var count = opts.particleCount || 60;
+                    var particles = [];
+                    for(var i=0; i<count; i++) {
+                        particles.push({
+                            x: can.width * (opts.origin ? opts.origin.x : 0.5),
+                            y: can.height * (opts.origin ? opts.origin.y : 0.5),
+                            vx: (Math.random() - 0.5) * 15,
+                            vy: (Math.random() - 0.5) * 15 - 8,
+                            r: Math.random() * 6 + 3,
+                            color: ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"][Math.floor(Math.random()*5)]
+                        });
+                    }
+                    function draw() {
+                        ctx.clearRect(0,0, can.width, can.height);
+                        var active = false;
+                        particles.forEach(p => {
+                            p.x += p.vx; 
+                            p.y += p.vy; 
+                            p.vy += 0.25; // gravidade
+                            if (p.y < can.height) active = true;
+                            ctx.fillStyle = p.color;
+                            ctx.beginPath(); 
+                            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); 
+                            ctx.fill();
+                        });
+                        if(active) requestAnimationFrame(draw);
+                        else ctx.clearRect(0,0, can.width, can.height);
+                    }
+                    draw();
+                }
+                return { create: function() { return fire; } };
+            })();
+            global.confetti = confetti;
+        })(window);
+
+        // Perguntas do Quiz
+        const quizData = [
+            {
+                question: "Em uma escola indígena, o primeiro passo para criar a Unidade Executora Própria (UEx) deve respeitar a organização coletiva da comunidade. Qual é o primeiro passo?",
+                options: ["Registrar o CNPJ na Receita Federal.", "Convocar uma Assembleia Geral com a comunidade escolar.", "Abrir uma conta bancária.", "Definir o presidente da UEx."],
+                correct: 1,
+                explanation: "A criação da UEx nasce da base democrática. A Assembleia Geral é o momento soberano onde a comunidade decide pela fundação da entidade."
+            },
+            {
+                question: "Durante a Assembleia Geral, após o diálogo coletivo e a escuta da comunidade, qual documento é aprovado para reger o funcionamento da Unidade Executora Própria (UEx)?",
+                options: ["O Projeto Político-Pedagógico (PPP).", "O Regimento Escolar.", "O Estatuto Social.", "A Ata de Posse da Diretoria."],
+                correct: 2,
+                explanation: "O Estatuto Social funciona como a 'lei interna' da associação, estabelecendo seus objetivos, regras e deveres."
+            },
+            {
+                question: "Com o Estatuto aprovado e registrado, qual é o passo seguinte e obrigatório para que a UEx exista legalmente perante o FNDE?",
+                options: ["A abertura da conta bancária.", "A eleição do Conselho Fiscal.", "A obtenção do CNPJ na Receita Federal.", "A comunicação à Secretaria de Educação."],
+                correct: 2,
+                explanation: "O CNPJ é essencial para que a escola seja reconhecida como uma pessoa jurídica capaz de receber recursos federais."
+            },
+            {
+                question: "Qual órgão da UEx é responsável por examinar, acompanhar e aprovar as contas da diretoria, garantindo transparência no uso do dinheiro?",
+                options: ["A Assembleia Geral.", "O Conselho Deliberativo.", "O Conselho Fiscal.", "O Presidente."],
+                correct: 2,
+                explanation: "O Conselho Fiscal atua como o 'vigilante' das finanças, assegurando que cada centavo foi investido conforme decidido coletivamente."
+            },
+            {
+                question: "Para que a UEx funcione de forma organizada, quais são os cargos mínimos que devem compor a diretoria da Unidade Executora Própria?",
+                options: ["Presidente e Vice-Presidente.", "Presidente, Tesoureiro e Secretário-Geral.", "Diretor, Coordenador e Supervisor.", "Apenas por um Tesoureiro."],
+                correct: 1,
+                explanation: "Essa tríade (Presidente, Tesoureiro e Secretário) garante que a liderança, as finanças e a documentação tenham responsáveis específicos."
+            }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+
+        function updateProgress() {
+            const p = (currentIndex / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = p + '%';
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+            updateProgress();
+            const q = quizData[currentIndex];
+            document.getElementById('question-text').innerText = q.question;
+            document.getElementById('question-counter').innerText = `Questão ${currentIndex + 1} de ${quizData.length}`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            document.getElementById('explanation-container').innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = 'option-btn';
+                b.innerHTML = `<strong>${letters[i]})</strong> &nbsp; ${opt}`;
+                b.onclick = () => checkAnswer(i);
+                container.appendChild(b);
+            });
+        }
+
+        function checkAnswer(idx) {
+            const correct = quizData[currentIndex].correct;
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.classList.add('disabled'));
+
+            if (idx === correct) {
+                score++;
+                btns[idx].classList.add('correct');
+            } else {
+                btns[idx].classList.add('incorrect');
+                btns[correct].classList.add('correct');
+            }
+
+            document.getElementById('explanation-container').innerHTML = `
+                <div class="explanation-box">
+                    <strong>Explicação:</strong> ${quizData[currentIndex].explanation}
+                </div>
+            `;
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 3800);
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-container').classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score}/${quizData.length}`;
+            document.getElementById('score-text').innerText = `Você acertou ${score} de ${quizData.length} questões!`;
+            if(score >= 4) confetti.create()({ particleCount: 120 });
+        }
+
+        // Eventos Inicialização
+        document.getElementById('start-quiz-btn').onclick = () => {
+            document.getElementById('introduction-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            loadQuestion();
+        };
+
+        // Acessibilidade Dinâmica
+        document.getElementById('toggle-contrast-btn').onclick = () => document.body.classList.toggle('high-contrast');
+        let fSize = 16;
+        document.getElementById('increase-font-btn').onclick = () => { if(fSize < 24) fSize+=2; document.documentElement.style.fontSize = fSize+'px'; };
+        document.getElementById('decrease-font-btn').onclick = () => { if(fSize > 12) fSize-=2; document.documentElement.style.fontSize = fSize+'px'; };
+
+        // Ajustar Canvas de Confete
+        const canvas = document.getElementById('confetti-canvas');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.onresize = resize; 
+        resize();
+
+    </script>
+</body>
+</html>
